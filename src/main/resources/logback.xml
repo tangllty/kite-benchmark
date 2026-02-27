@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- SLF4J/Logback配置：完全关闭日志输出 -->
+    
+    <!-- 关闭根日志记录器 -->
+    <root level="OFF"/>
+    
+    <!-- 关闭所有可能的日志输出 -->
+    <logger name="ROOT" level="OFF"/>
+    
+    <!-- 关闭SLF4J相关日志 -->
+    <logger name="org.slf4j" level="OFF"/>
+    <logger name="ch.qos.logback" level="OFF"/>
+    
+    <!-- 关闭应用相关框架的日志 -->
+    <logger name="com.tang.kite" level="OFF"/>
+    <logger name="com.mybatisflex" level="OFF"/>
+    <logger name="com.baomidou.mybatisplus" level="OFF"/>
+    <logger name="org.apache.ibatis" level="OFF"/>
+    <logger name="java.sql" level="OFF"/>
+    <logger name="org.mybatis" level="OFF"/>
+    
+    <!--确保没有任何appender输出 -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+</configuration>
