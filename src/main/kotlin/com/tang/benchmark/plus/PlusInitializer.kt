@@ -1,6 +1,10 @@
 package com.tang.benchmark.plus
 
+import com.baomidou.mybatisplus.annotation.DbType
 import com.baomidou.mybatisplus.core.MybatisConfiguration
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import com.tang.benchmark.Account
 import com.tang.benchmark.MethodTester
 import com.tang.benchmark.factory.DataSourceFactory
@@ -24,6 +28,9 @@ object PlusInitializer : MethodTester {
         val environment = Environment("Production", transactionFactory, dataSource)
         val configuration = MybatisConfiguration(environment)
         configuration.addMapper(AccountMapper::class.java)
+
+        val interceptor = MybatisPlusInterceptor()
+        interceptor.addInnerInterceptor(PaginationInnerInterceptor(DbType.H2))
         sqlSessionFactory = SqlSessionFactoryBuilder().build(configuration)
     }
 
@@ -31,6 +38,13 @@ object PlusInitializer : MethodTester {
         val session = sqlSessionFactory.openSession()
         val mapper = session.getMapper(AccountMapper::class.java)
         return mapper.selectById((1..DataSourceFactory.DATA_LENGTH).random().toLong())
+    }
+
+    override fun paginate(): List<Account> {
+        val session = sqlSessionFactory.openSession()
+        val mapper = session.getMapper(AccountMapper::class.java)
+        val pageNumber = (1..(DataSourceFactory.DATA_LENGTH - 10)).random().toLong()
+        return mapper.selectPage(Page(pageNumber, 10), null).records
     }
 
     override fun insert(): Int {

@@ -12,6 +12,8 @@ interface MethodTester {
 
     fun selectById(): Account?
 
+    fun paginate(): List<Account>
+
     fun insert(): Int
 
     fun updateById(): Int

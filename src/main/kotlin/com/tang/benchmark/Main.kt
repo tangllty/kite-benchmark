@@ -4,6 +4,7 @@ import com.tang.benchmark.factory.DataSourceFactory
 import com.tang.benchmark.flex.FlexInitializer
 import com.tang.benchmark.kite.KiteInitializer
 import com.tang.benchmark.plus.PlusInitializer
+import com.tang.kite.config.KiteConfig
 
 /**
  * @author Tang
@@ -15,20 +16,26 @@ fun main() {
     FlexInitializer.init(dataSource)
     PlusInitializer.init(dataSource)
 
+    KiteConfig.sql.sqlLogging = false
 
     printAverageTime("selectById", selectById())
+    printAverageTime("paginate", paginate())
     printAverageTime("insert", insert())
     printAverageTime("updateById", updateById())
     printAverageTime("deleteById", deleteById())
 }
 
-const val repeatTimes = 10
+const val repeatTimes = 50
 
 fun printAverageTime(methodName: String, averageTime: AverageTime) {
+    val kiteAverage = String.format("%.1f", averageTime.kiteAverage / 1_000_000.0).toDouble()
+    val flexAverage = String.format("%.1f", averageTime.flexAverage / 1_000_000.0).toDouble()
+    val plusAverage = String.format("%.1f", averageTime.plusAverage / 1_000_000.0).toDouble()
+
     println()
-    println("[${methodName}] Kite average time: ${averageTime.kiteAverage}ms")
-    println("[${methodName}] Flex average time: ${averageTime.flexAverage}ms")
-    println("[${methodName}] Plus average time: ${averageTime.plusAverage}ms")
+    println("[${methodName}] Kite average time: ${kiteAverage}ms")
+    println("[${methodName}] Flex average time: ${flexAverage}ms")
+    println("[${methodName}] Plus average time: ${plusAverage}ms")
 }
 
 class AverageTime(val kiteAverage: Double, val flexAverage: Double, val plusAverage: Double)
@@ -43,19 +50,52 @@ fun selectById(): AverageTime {
     val plusTimes = mutableListOf<Long>()
 
     repeat(repeatTimes) {
-        val kiteStart = System.currentTimeMillis()
+        val kiteStart = System.nanoTime()
         KiteInitializer.selectById()
-        val kiteEnd = System.currentTimeMillis()
+        val kiteEnd = System.nanoTime()
         kiteTimes.add(kiteEnd - kiteStart)
 
-        val flexStart = System.currentTimeMillis()
+        val flexStart = System.nanoTime()
         FlexInitializer.selectById()
-        val flexEnd = System.currentTimeMillis()
+        val flexEnd = System.nanoTime()
         flexTimes.add(flexEnd - flexStart)
 
-        val plusStart = System.currentTimeMillis()
+        val plusStart = System.nanoTime()
         PlusInitializer.selectById()
-        val plusEnd = System.currentTimeMillis()
+        val plusEnd = System.nanoTime()
+        plusTimes.add(plusEnd - plusStart)
+    }
+
+    val kiteAverage = kiteTimes.average()
+    val flexAverage = flexTimes.average()
+    val plusAverage = plusTimes.average()
+
+    return AverageTime(kiteAverage, flexAverage, plusAverage)
+}
+
+fun paginate(): AverageTime {
+    KiteInitializer.paginate()
+    FlexInitializer.paginate()
+    PlusInitializer.paginate()
+
+    val kiteTimes = mutableListOf<Long>()
+    val flexTimes = mutableListOf<Long>()
+    val plusTimes = mutableListOf<Long>()
+
+    repeat(repeatTimes) {
+        val kiteStart = System.nanoTime()
+        KiteInitializer.paginate()
+        val kiteEnd = System.nanoTime()
+        kiteTimes.add(kiteEnd - kiteStart)
+
+        val flexStart = System.nanoTime()
+        FlexInitializer.paginate()
+        val flexEnd = System.nanoTime()
+        flexTimes.add(flexEnd - flexStart)
+
+        val plusStart = System.nanoTime()
+        PlusInitializer.paginate()
+        val plusEnd = System.nanoTime()
         plusTimes.add(plusEnd - plusStart)
     }
 
@@ -76,19 +116,19 @@ fun insert(): AverageTime {
     val plusTimes = mutableListOf<Long>()
 
     repeat(repeatTimes) {
-        val kiteStart = System.currentTimeMillis()
+        val kiteStart = System.nanoTime()
         KiteInitializer.insert()
-        val kiteEnd = System.currentTimeMillis()
+        val kiteEnd = System.nanoTime()
         kiteTimes.add(kiteEnd - kiteStart)
 
-        val flexStart = System.currentTimeMillis()
+        val flexStart = System.nanoTime()
         FlexInitializer.insert()
-        val flexEnd = System.currentTimeMillis()
+        val flexEnd = System.nanoTime()
         flexTimes.add(flexEnd - flexStart)
 
-        val plusStart = System.currentTimeMillis()
+        val plusStart = System.nanoTime()
         PlusInitializer.insert()
-        val plusEnd = System.currentTimeMillis()
+        val plusEnd = System.nanoTime()
         plusTimes.add(plusEnd - plusStart)
     }
 
@@ -109,19 +149,19 @@ fun updateById(): AverageTime {
     val plusTimes = mutableListOf<Long>()
 
     repeat(repeatTimes) {
-        val kiteStart = System.currentTimeMillis()
+        val kiteStart = System.nanoTime()
         KiteInitializer.updateById()
-        val kiteEnd = System.currentTimeMillis()
+        val kiteEnd = System.nanoTime()
         kiteTimes.add(kiteEnd - kiteStart)
 
-        val flexStart = System.currentTimeMillis()
+        val flexStart = System.nanoTime()
         FlexInitializer.updateById()
-        val flexEnd = System.currentTimeMillis()
+        val flexEnd = System.nanoTime()
         flexTimes.add(flexEnd - flexStart)
 
-        val plusStart = System.currentTimeMillis()
+        val plusStart = System.nanoTime()
         PlusInitializer.updateById()
-        val plusEnd = System.currentTimeMillis()
+        val plusEnd = System.nanoTime()
         plusTimes.add(plusEnd - plusStart)
     }
 
@@ -142,19 +182,19 @@ fun deleteById(): AverageTime {
     val plusTimes = mutableListOf<Long>()
 
     repeat(repeatTimes) {
-        val kiteStart = System.currentTimeMillis()
+        val kiteStart = System.nanoTime()
         KiteInitializer.deleteById()
-        val kiteEnd = System.currentTimeMillis()
+        val kiteEnd = System.nanoTime()
         kiteTimes.add(kiteEnd - kiteStart)
 
-        val flexStart = System.currentTimeMillis()
+        val flexStart = System.nanoTime()
         FlexInitializer.deleteById()
-        val flexEnd = System.currentTimeMillis()
+        val flexEnd = System.nanoTime()
         flexTimes.add(flexEnd - flexStart)
 
-        val plusStart = System.currentTimeMillis()
+        val plusStart = System.nanoTime()
         PlusInitializer.deleteById()
-        val plusEnd = System.currentTimeMillis()
+        val plusEnd = System.nanoTime()
         plusTimes.add(plusEnd - plusStart)
     }
 

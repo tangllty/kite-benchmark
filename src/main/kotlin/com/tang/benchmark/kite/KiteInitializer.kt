@@ -25,6 +25,13 @@ object KiteInitializer : MethodTester {
         return mapper.selectById((1..DataSourceFactory.DATA_LENGTH).random().toLong())
     }
 
+    override fun paginate(): List<Account> {
+        val session = sqlSessionFactory.openSession()
+        val mapper = session.getMapper(AccountMapper::class)
+        val pageNumber = (1..(DataSourceFactory.DATA_LENGTH - 10)).random().toLong()
+        return mapper.paginate(pageNumber, 10).rows
+    }
+
     override fun insert(): Int {
         val session = sqlSessionFactory.openSession()
         val mapper = session.getMapper(AccountMapper::class)

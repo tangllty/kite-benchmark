@@ -1,6 +1,8 @@
 package com.tang.benchmark.flex
 
 import com.mybatisflex.core.MybatisFlexBootstrap
+import com.mybatisflex.core.paginate.Page
+import com.mybatisflex.core.query.QueryWrapper
 import com.tang.benchmark.MethodTester
 import com.tang.benchmark.factory.DataSourceFactory
 import com.tang.benchmark.Account
@@ -24,6 +26,12 @@ object FlexInitializer : MethodTester {
     override fun selectById(): Account? {
         val mapper = bootstrap.getMapper(AccountMapper::class.java)
         return mapper.selectOneById((1..DataSourceFactory.DATA_LENGTH).random().toLong())
+    }
+
+    override fun paginate(): List<Account> {
+        val mapper = bootstrap.getMapper(AccountMapper::class.java)
+        val pageNumber = (1..(DataSourceFactory.DATA_LENGTH - 10)).random().toLong()
+        return mapper.paginate(Page(pageNumber, 10), QueryWrapper()).records
     }
 
     override fun insert(): Int {
